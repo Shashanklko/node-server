@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Docker Three Tier App</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            max-width: 500px;
+            margin: 50px auto;
+            text-align: center;
+        }
+
+        input {
+            padding: 10px;
+            width: 70%;
+        }
+
+        button {
+            padding: 10px;
+            margin: 10px;
+            cursor: pointer;
+        }
+
+        li {
+            text-align: left;
+            padding: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Message Storage App</h1>
+
+    <input
+        type="text"
+        id="message"
+        placeholder="Enter your message"
+    >
+
+    <br>
+
+    <button onclick="saveMessage()">Save Message</button>
+
+    <button onclick="fetchMessages()">Fetch Messages</button>
+
+    <p id="status"></p>
+
+    <h2>Stored Messages</h2>
+
+    <ul id="messages"></ul>
+
+    <script>
+
+        // Save message
+        async function saveMessage() {
+
+            const message = document.getElementById('message').value;
+
+            const response = await fetch('/api/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message })
+            });
+
+            const data = await response.json();
+
+            document.getElementById('status').innerText =
+                data.message || data.error;
+
+            if (response.ok) {
+                document.getElementById('message').value = '';
+                fetchMessages();
+            }
+        }
+
+        // Fetch messages
+        async function fetchMessages() {
+
+            const response = await fetch('/api/messages');
+            const data = await response.json();
+
+            const list = document.getElementById('messages');
+
+            list.innerHTML = '';
+
+            data.forEach(item => {
+
+                const li = document.createElement('li');
+
+                li.innerText = item.id + '. ' + item.message;
+
+                list.appendChild(li);
+            });
+        }
+
+    </script>
+
+</body>
+</html>
